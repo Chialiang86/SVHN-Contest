@@ -1,0 +1,1 @@
+python train.py --img 320 --batch-size 32 --epochs 3 --data data/svhn.yaml --cfg yolov5m.yaml --weights ''
