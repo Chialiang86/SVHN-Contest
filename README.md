@@ -1,3 +1,6 @@
+---
+tags: CVDL
+---
 
 # CodaLab Competetion : Street View House Numbers detection
 
@@ -62,8 +65,9 @@ $ pip install -r requirements.txt
 #### Training architecture and the opensource link
 - I used [YOLOv5](https://github.com/ultralytics/yolov5) as my main training architecture
 
-#### 1. Add dataset to folder
-- Move train/test folder which contrains SVHN image data to `data/datasets/svhn/labels/` (feel free to replace old train/test folder in it)
+#### 1. Add dataset to folder (IMPORTANT!)
+- Move `train/test` folder which contrains SVHN image data to `data/datasets/svhn/images/` (feel free to replace old train/test folder in it)
+- Copy `digitStruct.mat` to the root of this repo
 
 #### 2. Transfer .mat file to .json file
 
