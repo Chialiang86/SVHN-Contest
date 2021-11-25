@@ -18,6 +18,7 @@
 *.json
 *.cfg
 *.txt
+*.mat
 !setup.cfg
 !cfg/yolov3*.cfg
 
