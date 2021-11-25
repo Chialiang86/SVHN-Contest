@@ -5,6 +5,24 @@ Train a YOLOv5 model on a custom dataset
 Usage:
     $ python path/to/train.py --data coco128.yaml --weights yolov5s.pt --img 640
 """
+from utils.torch_utils import EarlyStopping, ModelEMA, de_parallel, select_device, torch_distributed_zero_first
+from utils.plots import plot_evolve, plot_labels
+from utils.metrics import fitness
+from utils.loss import ComputeLoss
+from utils.loggers.wandb.wandb_utils import check_wandb_resume
+from utils.loggers import Loggers
+from utils.general import (LOGGER, NCOLS, check_dataset, check_file, check_git_status, check_img_size,
+                           check_requirements, check_suffix, check_yaml, colorstr, get_latest_run, increment_path,
+                           init_seeds, intersect_dicts, labels_to_class_weights, labels_to_image_weights, methods,
+                           one_cycle, print_args, print_mutation, strip_optimizer)
+from utils.downloads import attempt_download
+from utils.datasets import create_dataloader
+from utils.callbacks import Callbacks
+from utils.autobatch import check_train_batch_size
+from utils.autoanchor import check_anchors
+from models.yolo import Model
+from models.experimental import attempt_load
+import val  # for end-of-epoch mAP
 import argparse
 import math
 import os
@@ -31,24 +49,6 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
-import val  # for end-of-epoch mAP
-from models.experimental import attempt_load
-from models.yolo import Model
-from utils.autoanchor import check_anchors
-from utils.autobatch import check_train_batch_size
-from utils.callbacks import Callbacks
-from utils.datasets import create_dataloader
-from utils.downloads import attempt_download
-from utils.general import (LOGGER, NCOLS, check_dataset, check_file, check_git_status, check_img_size,
-                           check_requirements, check_suffix, check_yaml, colorstr, get_latest_run, increment_path,
-                           init_seeds, intersect_dicts, labels_to_class_weights, labels_to_image_weights, methods,
-                           one_cycle, print_args, print_mutation, strip_optimizer)
-from utils.loggers import Loggers
-from utils.loggers.wandb.wandb_utils import check_wandb_resume
-from utils.loss import ComputeLoss
-from utils.metrics import fitness
-from utils.plots import plot_evolve, plot_labels
-from utils.torch_utils import EarlyStopping, ModelEMA, de_parallel, select_device, torch_distributed_zero_first
 
 LOCAL_RANK = int(os.getenv('LOCAL_RANK', -1))  # https://pytorch.org/docs/stable/elastic/run.html
 RANK = int(os.getenv('RANK', -1))
@@ -166,7 +166,7 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
 
     # Scheduler
     if opt.linear_lr:
-        lf = lambda x: (1 - x / (epochs - 1)) * (1.0 - hyp['lrf']) + hyp['lrf']  # linear
+        def lf(x): return (1 - x / (epochs - 1)) * (1.0 - hyp['lrf']) + hyp['lrf']  # linear
     else:
         lf = one_cycle(1, hyp['lrf'], epochs)  # cosine 1->hyp['lrf']
     scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)  # plot_lr_scheduler(optimizer, scheduler, epochs)
