@@ -1,6 +1,3 @@
----
-tags: CVDL
----
 
 # CodaLab Competetion : Street View House Numbers detection
 
@@ -115,12 +112,13 @@ $ python3 val.py --img 512 --data data/svhn.yaml --task test --weights runs/11/t
 ```
 
 ## Reproduce the best submission file
-
-1. Download the best weight 
+1. Add dataset to folder (IMPORTANT!)
+    - Move `train/test` folder which contrains SVHN image data to `data/datasets/svhn/images/` (feel free to replace old train/test folder in it)
+2. Download the best weight 
 -> google drive link : [best-11.pt](https://drive.google.com/file/d/1opcMexv-tEG4jJJ-uS6pjetxSHl3KmPn/view?usp=sharing)
-2. Drag the weight file to the root of the project folder
-3. Run the command below, then answer.json will be produced in the same direcory
-4. The predicting result will be saved in `result/`
+3. Drag the weight file to the root of the project folder
+4. Run the command below, then answer.json will be produced in the same direcory
+5. The predicting result will be saved in `result/`
 
 ```bash 
 $ python3 val.py --img 512 --data data/svhn.yaml --task test --weights best-11.pt --conf-thres 0.001 --iou-thres 0.6 --project result --save-json 
